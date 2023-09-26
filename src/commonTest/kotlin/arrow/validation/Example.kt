@@ -35,4 +35,12 @@ fun main() {
   val r = person("", ",", -2).swap().getOrNull()!!
   println(r[Person::name].problemsOrEmpty())
   println(r[Person::name][Name::first].problemsOrEmpty())
+
+  r.inspect {
+    Person::name.inspect {
+      Name::first.inspect { "${problems.size} problems about first name" }
+      Name::last.inspect { "${problems.size} problems about last name" }
+    }
+    Person::age.inspect { "${problems.size} problems about age" }
+  }
 }

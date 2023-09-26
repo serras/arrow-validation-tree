@@ -13,6 +13,8 @@ data class Person(val name: Name, val age: Int)
 data class Name(val first: String, val last: String)
 ```
 
+## Validation
+
 To keep things simple, we'll just check that both parts of the name are not empty, and that the age
 is positive. Using Arrow's [validation](https://arrow-kt.io/learn/typed-errors/validation/) operators,
 we come to the following:
@@ -58,6 +60,17 @@ fun person(firstName: String, lastName: String, age: Int): Either<PropertyValida
   }
 ```
 
+The API exposed by `validationTree` is quite small. The main difference is that we need to
+provide the labels that ultimately appear in the validation tree; we can see that we change
+`zipOrAccumulate` to `fields`. The table below summarizes the rest of the changes.
+
+| `Raise` operation | `ValidationTreeRaise` operation | Label                  |
+|-|-|------------------------|
+| `zipOrAccumulate` | `fields` | Given explicitly       |
+| `mapOrAccumulate` | `elements` | Taken from the indices |
+
+## Inspection
+
 The result of `validationTree` in the failure case is now a `ValidationTree`, instead of simply
 a `NonEmptyList`. Such tree remembers the structure of the validation, so you can more easily
 inspect the problems:
@@ -69,11 +82,24 @@ validationTree[Person::name][Name::first]?.problems
 validationTree[Person::age].problemsOrEmpty()
 ```
 
-The API exposed by `validationTree` is quite small. The main difference is that we need to
-provide the labels that ultimately appear in the validation tree; we can see that we change
-`zipOrAccumulate` to `fields`. The table below summarizes the rest of the changes.
+We also provide _structured inspection_, in which nested blocks correspond to problems nested
+in the tree. This is useful, among other scenarios, when designing a user interface that should
+inform about those errrors.
 
-| `Raise` operation | `ValidationTreeRaise` operation | Label                  |
-|-|-|------------------------|
-| `zipOrAccumulate` | `fields` | Given explicitly       |
-| `mapOrAccumulate` | `elements` | Taken from the indices |
+```kotlin
+@Composable
+fun personForm(
+  first: String, last: String, age: Int, 
+  errors: PropertyValidationTree<String>
+) {
+  errors.inspect {
+    Person::name.inspect {
+      Name::first.inspect {
+        TextField(value = first, isError = hasProblems)
+        problems.forEach { Text(text = it) }
+      }
+      Name::last.inspect { /* as above */ }
+    }
+  }
+}
+```
