@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
-  kotlin("multiplatform") version "1.9.10"
+  kotlin("multiplatform") version "1.9.23"
   id("com.diffplug.spotless") version "6.25.0"
 }
 
