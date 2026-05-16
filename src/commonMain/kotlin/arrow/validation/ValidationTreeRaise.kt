@@ -7,9 +7,6 @@ import arrow.core.raise.Raise
 import arrow.core.raise.RaiseAccumulate
 import arrow.core.raise.RaiseDSL
 import arrow.core.raise.fold
-import arrow.core.raise.mapOrAccumulate
-import arrow.core.raise.zipOrAccumulate
-import kotlin.experimental.ExperimentalTypeInference
 
 public fun <P, E, A> validationTree(
   block: ValidationTreeRaise<P, E>.() -> A,
@@ -54,7 +51,6 @@ private fun <P, E> ValidationElement<P, E>.initial(): ValidationNode.Nested<P, E
   else -> ValidationNode.Field(first, nonEmptyListOf(copy(path = path.drop(1)).initial()))
 }
 
-@OptIn(ExperimentalTypeInference::class)
 public class ValidationTreeRaise<P, E> internal constructor(
   private val currentPath: List<PathElement<P>>,
   private val underlying: RaiseAccumulate<ValidationElement<P, E>>,
@@ -67,71 +63,73 @@ public class ValidationTreeRaise<P, E> internal constructor(
   @RaiseDSL
   public fun <A, B, C> field(
     name: P,
-    @BuilderInference action: ValidationTreeRaise<P, E>.() -> A,
+    action: ValidationTreeRaise<P, E>.() -> A,
   ): A =
     action.invoke(ValidationTreeRaise(currentPath + PathElement.Field(name), underlying))
 
   @RaiseDSL
   public fun <A, B, C> fields(
-    @BuilderInference action1: Pair<P, ValidationTreeRaise<P, E>.() -> A>,
-    @BuilderInference action2: Pair<P, ValidationTreeRaise<P, E>.() -> B>,
+    action1: Pair<P, ValidationTreeRaise<P, E>.() -> A>,
+    action2: Pair<P, ValidationTreeRaise<P, E>.() -> B>,
     block: (A, B) -> C,
-  ): C = underlying.raise.zipOrAccumulate(
-    extend(PathElement.Field(action1.first), action1.second),
-    extend(PathElement.Field(action2.first), action2.second),
-    block,
-  )
+  ): C = with(underlying) {
+    val x1 = extend(PathElement.Field(action1.first), action1.second)
+    val x2 = extend(PathElement.Field(action2.first), action2.second)
+    return block(x1(), x2())
+  }
 
   @RaiseDSL
   public fun <A, B, C, D> fields(
-    @BuilderInference action1: Pair<P, ValidationTreeRaise<P, E>.() -> A>,
-    @BuilderInference action2: Pair<P, ValidationTreeRaise<P, E>.() -> B>,
-    @BuilderInference action3: Pair<P, ValidationTreeRaise<P, E>.() -> C>,
+    action1: Pair<P, ValidationTreeRaise<P, E>.() -> A>,
+    action2: Pair<P, ValidationTreeRaise<P, E>.() -> B>,
+    action3: Pair<P, ValidationTreeRaise<P, E>.() -> C>,
     block: (A, B, C) -> D,
-  ): D = underlying.raise.zipOrAccumulate(
-    extend(PathElement.Field(action1.first), action1.second),
-    extend(PathElement.Field(action2.first), action2.second),
-    extend(PathElement.Field(action3.first), action3.second),
-    block,
-  )
+  ): D = with(underlying) {
+    val x1 = extend(PathElement.Field(action1.first), action1.second)
+    val x2 = extend(PathElement.Field(action2.first), action2.second)
+    val x3 = extend(PathElement.Field(action3.first), action3.second)
+    return block(x1(), x2(), x3())
+  }
 
   @RaiseDSL
   public fun <A, B, C, D, F> fields(
-    @BuilderInference action1: Pair<P, ValidationTreeRaise<P, E>.() -> A>,
-    @BuilderInference action2: Pair<P, ValidationTreeRaise<P, E>.() -> B>,
-    @BuilderInference action3: Pair<P, ValidationTreeRaise<P, E>.() -> C>,
-    @BuilderInference action4: Pair<P, ValidationTreeRaise<P, E>.() -> D>,
+    action1: Pair<P, ValidationTreeRaise<P, E>.() -> A>,
+    action2: Pair<P, ValidationTreeRaise<P, E>.() -> B>,
+    action3: Pair<P, ValidationTreeRaise<P, E>.() -> C>,
+    action4: Pair<P, ValidationTreeRaise<P, E>.() -> D>,
     block: (A, B, C, D) -> F,
-  ): F = underlying.raise.zipOrAccumulate(
-    extend(PathElement.Field(action1.first), action1.second),
-    extend(PathElement.Field(action2.first), action2.second),
-    extend(PathElement.Field(action3.first), action3.second),
-    extend(PathElement.Field(action4.first), action4.second),
-    block,
-  )
+  ): F = with(underlying) {
+    val x1 = extend(PathElement.Field(action1.first), action1.second)
+    val x2 = extend(PathElement.Field(action2.first), action2.second)
+    val x3 = extend(PathElement.Field(action3.first), action3.second)
+    val x4 = extend(PathElement.Field(action4.first), action4.second)
+    return block(x1(), x2(), x3(), x4())
+  }
 
   @RaiseDSL
   public fun <A, B, C, D, F, G> fields(
-    @BuilderInference action1: Pair<P, ValidationTreeRaise<P, E>.() -> A>,
-    @BuilderInference action2: Pair<P, ValidationTreeRaise<P, E>.() -> B>,
-    @BuilderInference action3: Pair<P, ValidationTreeRaise<P, E>.() -> C>,
-    @BuilderInference action4: Pair<P, ValidationTreeRaise<P, E>.() -> D>,
-    @BuilderInference action5: Pair<P, ValidationTreeRaise<P, E>.() -> F>,
+    action1: Pair<P, ValidationTreeRaise<P, E>.() -> A>,
+    action2: Pair<P, ValidationTreeRaise<P, E>.() -> B>,
+    action3: Pair<P, ValidationTreeRaise<P, E>.() -> C>,
+    action4: Pair<P, ValidationTreeRaise<P, E>.() -> D>,
+    action5: Pair<P, ValidationTreeRaise<P, E>.() -> F>,
     block: (A, B, C, D, F) -> G,
-  ): G = underlying.raise.zipOrAccumulate(
-    extend(PathElement.Field(action1.first), action1.second),
-    extend(PathElement.Field(action2.first), action2.second),
-    extend(PathElement.Field(action3.first), action3.second),
-    extend(PathElement.Field(action4.first), action4.second),
-    extend(PathElement.Field(action5.first), action5.second),
-    block,
-  )
+  ): G = with(underlying) {
+    val x1 = extend(PathElement.Field(action1.first), action1.second)
+    val x2 = extend(PathElement.Field(action2.first), action2.second)
+    val x3 = extend(PathElement.Field(action3.first), action3.second)
+    val x4 = extend(PathElement.Field(action4.first), action4.second)
+    val x5 = extend(PathElement.Field(action5.first), action5.second)
+    return block(x1(), x2(), x3(), x4(), x5())
+  }
 
   @RaiseDSL
   public fun <A, B> Iterable<A>.elements(
     block: ValidationTreeRaise<P, E>.(A) -> B,
-  ): List<B> = underlying.raise.mapOrAccumulate(this.withIndex()) { (ix, value) ->
-    extend(PathElement.Index(ix), block)(value)
+  ): List<B> = with(underlying) {
+    mapOrAccumulate(this@elements.withIndex()) { (ix, value) ->
+      extend(PathElement.Index(ix), block)(value)
+    }
   }
 
   private fun <A> extend(path: PathElement<P>, block: ValidationTreeRaise<P, E>.() -> A): RaiseAccumulate<ValidationElement<P, E>>.() -> A = {

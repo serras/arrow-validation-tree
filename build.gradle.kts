@@ -1,8 +1,6 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-
 plugins {
-  kotlin("multiplatform") version "1.9.10"
-  id("com.diffplug.spotless") version "6.25.0"
+  kotlin("multiplatform") version "2.3.21"
+  id("com.diffplug.spotless") version "8.5.1"
 }
 
 group = "com.serranofp"
@@ -12,13 +10,18 @@ repositories {
   mavenCentral()
 }
 
-@OptIn(ExperimentalKotlinGradlePluginApi::class)
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(8)
+  }
+}
+
 kotlin {
   explicitApi()
 
-  targetHierarchy.default()
+  applyDefaultHierarchyTemplate()
 
-  jvm { jvmToolchain(8) }
+  jvm()
   js {
     browser()
     nodejs()
@@ -27,10 +30,14 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
-        implementation("io.arrow-kt:arrow-core:1.2.1")
+        implementation("io.arrow-kt:arrow-core:2.2.2.1")
       }
     }
     val commonTest by getting
+  }
+
+  compilerOptions {
+    freeCompilerArgs.add("-Xcontext-parameters")
   }
 }
 
