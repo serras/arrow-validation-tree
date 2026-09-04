@@ -1,6 +1,6 @@
 plugins {
   kotlin("multiplatform") version "2.3.21"
-  id("com.diffplug.spotless") version "8.5.1"
+  id("com.diffplug.spotless") version "8.10.2"
 }
 
 group = "com.serranofp"
